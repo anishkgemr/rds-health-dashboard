@@ -79,7 +79,7 @@ Resources:
   RDSDataCollectionStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub '${GitHubRepoURL}/data-collection/module-rds-health.yaml'
+      TemplateURL: !Sub 'https://cid-cloudformation-bucket.s3.amazonaws.com/rds-health-dashboard/data-collection/module-rds-health.yaml'
       Parameters:
         S3DataBucketName: !Ref S3DataBucketName
         DataCollectionDatabaseName: !Ref DataCollectionDatabaseName
@@ -109,6 +109,7 @@ Resources:
         athena-workgroup: CID
         quicksight-user: !Ref QuickSightUser
         account-map-source: dummy
+        data-collection-database-name: !Ref DataCollectionDatabaseName
         resources: !Sub '${GitHubRepoURL}/dashboards/rds-health.yaml'
         share-with-account: 'yes'
 
