@@ -15517,6 +15517,7 @@ datasets:
           Alias: rds_analysis_dist_view
           Source:
             PhysicalTableId: rds-analysis-table
+          DataTransforms: []
       ImportMode: SPICE
     dependsOn:
       views:
@@ -15547,6 +15548,7 @@ datasets:
           Alias: rds_analysis_tags_view
           Source:
             PhysicalTableId: rds-tags-table
+          DataTransforms: []
       ImportMode: SPICE
     dependsOn:
       views:
@@ -15641,6 +15643,7 @@ datasets:
           Alias: rds_analysis_endofsupport_view
           Source:
             PhysicalTableId: rds-endofsupport-table
+          DataTransforms: []
       ImportMode: SPICE
     dependsOn:
       views:
@@ -15803,6 +15806,7 @@ datasets:
           Alias: rds_analysis_daily_backup_view
           Source:
             PhysicalTableId: rds-dailybackup-table
+          DataTransforms: []
       ImportMode: SPICE
     dependsOn:
       views:
@@ -15894,6 +15898,7 @@ datasets:
         rds-cost-summary-logical:
           Source:
             PhysicalTableId: rds-cost-summary-table
+          DataTransforms: []
           Alias: rds_cost_summary
       ImportMode: SPICE          
     dependsOn:
@@ -15978,6 +15983,7 @@ datasets:
           Alias: rds_analysis_maintenance_view
           Source:
             PhysicalTableId: rds-maintenance-table
+          DataTransforms: []
       ImportMode: SPICE
     dependsOn:
       views:
