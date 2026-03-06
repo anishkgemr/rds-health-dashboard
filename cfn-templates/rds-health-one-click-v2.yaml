@@ -1,0 +1,122 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'RDS Health Dashboard - One-Click Deployment using CID Framework'
+
+Parameters:
+  DashboardId:
+    Type: String
+    Default: 'rds-health-dashboard'
+    Description: 'QuickSight Dashboard ID'
+  
+  QuickSightUser:
+    Type: String
+    Description: 'QuickSight username (e.g., Admin/your-username or your-username)'
+  
+  GitHubRepoURL:
+    Type: String
+    Default: 'https://raw.githubusercontent.com/anishkgemr/rds-health-dashboard/main'
+    Description: 'GitHub repository base URL for downloading templates'
+  
+  S3DataBucketName:
+    Type: String
+    Description: 'S3 bucket for data collection (from CID framework)'
+  
+  DataCollectionDatabaseName:
+    Type: String
+    Default: 'optimization_data'
+    Description: 'Athena/Glue database name'
+  
+  RegionsInScope:
+    Type: String
+    Default: 'us-east-1,us-west-2'
+    Description: 'Comma-separated list of AWS regions to collect RDS data from'
+  
+  DBClusterinfo:
+    Type: String
+    Default: 'no'
+    AllowedValues: ['yes', 'no']
+    Description: 'Collect RDS cluster information (yes/no)'
+  
+  SNSEmailSubscription:
+    Type: String
+    Description: 'Email address for data collection alerts'
+  
+  CIDCrawlerExecutionStateMachineArn:
+    Type: String
+    Description: 'ARN of CID Crawler Execution State Machine (from CID Data Collection)'
+  
+  AccountCollectorLambdaArn:
+    Type: String
+    Description: 'ARN of CID account collector Lambda (from CID Data Collection)'
+  
+  InventoryLambdaArn:
+    Type: String
+    Description: 'ARN of CID inventory Lambda (from CID Data Collection)'
+
+  InventoryLambdaRoleArn:
+    Type: String
+    Description: 'ARN of CID inventory Lambda execution role (from CID Data Collection)'
+    AllowedPattern: '^arn:aws:iam::\d{12}:role/[a-zA-Z0-9+=,.@\-_/]+$'
+
+  GlueCrawlerRoleArn:
+    Type: String
+    Description: 'ARN of CID Glue Crawler role (from CID Data Collection)'
+    AllowedPattern: '^arn:aws:iam::\d{12}:role/[a-zA-Z0-9+=,.@\-_/]+$'
+
+  SchedulerExecutionRoleArn:
+    Type: String
+    Description: 'ARN of CID EventBridge Scheduler role (from CID Data Collection)'
+    AllowedPattern: '^arn:aws:iam::\d{12}:role/[a-zA-Z0-9+=,.@\-_/]+$'
+
+  StepFunctionExecutionRoleArn:
+    Type: String
+    Description: 'ARN of CID Step Functions execution role (from CID Data Collection)'
+    AllowedPattern: '^arn:aws:iam::\d{12}:role/[a-zA-Z0-9+=,.@\-_/]+$'
+
+Conditions: {}
+
+Resources:
+  # RDS Data Collection Stack (Nested)
+  RDSDataCollectionStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub '${GitHubRepoURL}/data-collection/module-rds-health.yaml'
+      Parameters:
+        S3DataBucketName: !Ref S3DataBucketName
+        DataCollectionDatabaseName: !Ref DataCollectionDatabaseName
+        RegionsInScope: !Ref RegionsInScope
+        DBClusterinfo: !Ref DBClusterinfo
+        SNSEmailSubscription: !Ref SNSEmailSubscription
+        CIDCrawlerExecutionStateMachineArn: !Ref CIDCrawlerExecutionStateMachineArn
+        AccountCollectorLambdaArn: !Ref AccountCollectorLambdaArn
+        InventoryLambdaArn: !Ref InventoryLambdaArn
+        InventoryLambdaRoleArn: !Ref InventoryLambdaRoleArn
+        GlueCrawlerRoleArn: !Ref GlueCrawlerRoleArn
+        SchedulerExecutionRoleArn: !Ref SchedulerExecutionRoleArn
+        StepFunctionExecutionRoleArn: !Ref StepFunctionExecutionRoleArn
+        Schedule: 'rate(1 day)'
+      TimeoutInMinutes: 30
+
+  # Deploy dashboard using CID framework's Lambda
+  DashboardDeployment:
+    Type: Custom::CidDashboard
+    DependsOn: RDSDataCollectionStack
+    Properties:
+      ServiceToken:
+        Fn::ImportValue: cid-CidExecArn
+      Dashboard:
+        dashboard-id: rds-health-dashboard
+        athena-database: !Ref DataCollectionDatabaseName
+        athena-workgroup: CID
+        quicksight-user: !Ref QuickSightUser
+        account-map-source: dummy
+        resources: !Sub '${GitHubRepoURL}/dashboards/rds-health.yaml'
+        share-with-account: 'yes'
+
+Outputs:
+  DashboardURL:
+    Description: 'URL to access the RDS Health Dashboard'
+    Value: !GetAtt DashboardDeployment.DashboardURL
+  
+  DataCollectionStackId:
+    Description: 'Stack ID of the RDS data collection module'
+    Value: !Ref RDSDataCollectionStack

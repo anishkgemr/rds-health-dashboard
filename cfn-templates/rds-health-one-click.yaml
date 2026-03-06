@@ -1,0 +1,316 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'RDS Health Dashboard - One-Click Deployment (Data Collection + Dashboard)'
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: 'Dashboard Configuration'
+        Parameters:
+          - DashboardId
+          - QuickSightUser
+          - GitHubRepoURL
+      - Label:
+          default: 'Data Collection Configuration'
+        Parameters:
+          - S3DataBucketName
+          - DataCollectionDatabaseName
+          - RegionsInScope
+          - DBClusterinfo
+          - SNSEmailSubscription
+      - Label:
+          default: 'CID Framework Integration'
+        Parameters:
+          - CIDCrawlerExecutionStateMachineArn
+          - AccountCollectorLambdaArn
+          - InventoryLambdaArn
+          - InventoryLambdaRoleArn
+          - GlueCrawlerRoleArn
+          - SchedulerExecutionRoleArn
+          - StepFunctionExecutionRoleArn
+
+Parameters:
+  DashboardId:
+    Type: String
+    Default: 'rds-health-dashboard'
+    Description: 'QuickSight Dashboard ID'
+  
+  QuickSightUser:
+    Type: String
+    Description: 'QuickSight username (e.g., Admin/your-username or your-username)'
+  
+  GitHubRepoURL:
+    Type: String
+    Default: 'https://raw.githubusercontent.com/YOUR-ORG/rds-health-dashboard/main'
+    Description: 'GitHub repository base URL for downloading templates'
+  
+  S3DataBucketName:
+    Type: String
+    Description: 'S3 bucket for data collection (from CID framework)'
+  
+  DataCollectionDatabaseName:
+    Type: String
+    Default: 'optimization_data'
+    Description: 'Athena/Glue database name'
+  
+  RegionsInScope:
+    Type: String
+    Default: 'us-east-1,us-west-2'
+    Description: 'Comma-separated list of AWS regions to collect RDS data from'
+  
+  DBClusterinfo:
+    Type: String
+    Default: 'no'
+    AllowedValues: ['yes', 'no']
+    Description: 'Collect RDS cluster information (yes/no)'
+  
+  SNSEmailSubscription:
+    Type: String
+    Description: 'Email address for data collection alerts'
+  
+  CIDCrawlerExecutionStateMachineArn:
+    Type: String
+    Description: 'ARN of CID Crawler Execution State Machine (from CID Data Collection)'
+  
+  AccountCollectorLambdaArn:
+    Type: String
+    Description: 'ARN of CID account collector Lambda (from CID Data Collection)'
+  
+  InventoryLambdaArn:
+    Type: String
+    Description: 'ARN of CID inventory Lambda (from CID Data Collection)'
+
+  InventoryLambdaRoleArn:
+    Type: String
+    Description: 'ARN of CID inventory Lambda execution role (from CID Data Collection)'
+    AllowedPattern: '^arn:aws:iam::\d{12}:role/[a-zA-Z0-9+=,.@\-_/]+$'
+
+  GlueCrawlerRoleArn:
+    Type: String
+    Description: 'ARN of CID Glue Crawler role (from CID Data Collection)'
+    AllowedPattern: '^arn:aws:iam::\d{12}:role/[a-zA-Z0-9+=,.@\-_/]+$'
+
+  SchedulerExecutionRoleArn:
+    Type: String
+    Description: 'ARN of CID EventBridge Scheduler role (from CID Data Collection)'
+    AllowedPattern: '^arn:aws:iam::\d{12}:role/[a-zA-Z0-9+=,.@\-_/]+$'
+
+  StepFunctionExecutionRoleArn:
+    Type: String
+    Description: 'ARN of CID Step Functions execution role (from CID Data Collection)'
+    AllowedPattern: '^arn:aws:iam::\d{12}:role/[a-zA-Z0-9+=,.@\-_/]+$'
+
+Conditions: {}
+
+Resources:
+  # IAM Role for Lambda that runs cid-cmd
+  CIDDeploymentLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: CIDDeploymentPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - quicksight:*
+                  - athena:*
+                  - glue:GetDatabase
+                  - glue:GetTable
+                  - s3:GetObject
+                  - s3:ListBucket
+                Resource: '*'
+
+  # Lambda function that runs cid-cmd deploy
+  CIDDeploymentFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub '${AWS::StackName}-cid-deployment'
+      Runtime: python3.11
+      Handler: index.lambda_handler
+      Role: !GetAtt CIDDeploymentLambdaRole.Arn
+      Timeout: 900
+      MemorySize: 512
+      Environment:
+        Variables:
+          DASHBOARD_ID: !Ref DashboardId
+          ATHENA_DATABASE: !Ref DataCollectionDatabaseName
+          QUICKSIGHT_USER: !Ref QuickSightUser
+          GITHUB_REPO_URL: !Ref GitHubRepoURL
+      Code:
+        ZipFile: |
+          import json
+          import subprocess
+          import sys
+          import os
+          import urllib3
+          import tempfile
+          
+          def send_response(event, context, status, data={}):
+              """Send CloudFormation custom resource response"""
+              http = urllib3.PoolManager()
+              response_body = {
+                  'Status': status,
+                  'Reason': f'See CloudWatch Log Stream: {context.log_stream_name}',
+                  'PhysicalResourceId': context.log_stream_name,
+                  'StackId': event['StackId'],
+                  'RequestId': event['RequestId'],
+                  'LogicalResourceId': event['LogicalResourceId'],
+                  'Data': data
+              }
+              
+              json_response = json.dumps(response_body)
+              headers = {'content-type': '', 'content-length': str(len(json_response))}
+              
+              try:
+                  http.request('PUT', event['ResponseURL'], body=json_response, headers=headers)
+              except Exception as e:
+                  print(f"Failed to send response: {e}")
+          
+          def lambda_handler(event, context):
+              print(f"Event: {json.dumps(event)}")
+              
+              try:
+                  request_type = event['RequestType']
+                  dashboard_id = os.environ['DASHBOARD_ID']
+                  athena_database = os.environ['ATHENA_DATABASE']
+                  quicksight_user = os.environ['QUICKSIGHT_USER']
+                  github_repo_url = os.environ['GITHUB_REPO_URL']
+                  
+                  if request_type == 'Create':
+                      print("Installing cid-cmd...")
+                      subprocess.run([
+                          sys.executable, '-m', 'pip', 'install', 
+                          '--target', '/tmp/packages',
+                          '--upgrade', 'cid-cmd'
+                      ], check=True, capture_output=True, text=True)
+                      
+                      # Add to path
+                      sys.path.insert(0, '/tmp/packages')
+                      
+                      # Download dashboard YAML from GitHub
+                      print(f"Downloading dashboard YAML from {github_repo_url}")
+                      http = urllib3.PoolManager()
+                      dashboard_url = f"{github_repo_url}/dashboards/rds-health.yaml"
+                      response = http.request('GET', dashboard_url)
+                      
+                      if response.status != 200:
+                          raise Exception(f"Failed to download dashboard YAML: HTTP {response.status}")
+                      
+                      # Save to temp file
+                      with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+                          f.write(response.data.decode('utf-8'))
+                          dashboard_file = f.name
+                      
+                      print(f"Deploying dashboard: {dashboard_id}")
+                      result = subprocess.run([
+                          sys.executable, '-m', 'cid.cli',
+                          'deploy',
+                          '--dashboard-id', dashboard_id,
+                          '--athena-database', athena_database,
+                          '--athena-workgroup', 'CID',
+                          '--quicksight-user', quicksight_user,
+                          '--resources', dashboard_file,
+                          '--share-with-account',
+                          '--yes'
+                      ], check=True, capture_output=True, text=True, env={**os.environ, 'PYTHONPATH': '/tmp/packages'})
+                      
+                      print(f"Deployment output: {result.stdout}")
+                      
+                      # Cleanup
+                      os.unlink(dashboard_file)
+                      
+                      dashboard_url = f"https://{os.environ['AWS_REGION']}.quicksight.aws.amazon.com/sn/dashboards/{dashboard_id}"
+                      
+                      send_response(event, context, 'SUCCESS', {
+                          'DashboardId': dashboard_id,
+                          'DashboardURL': dashboard_url
+                      })
+                  
+                  elif request_type == 'Delete':
+                      print("Installing cid-cmd...")
+                      subprocess.run([
+                          sys.executable, '-m', 'pip', 'install',
+                          '--target', '/tmp/packages',
+                          '--upgrade', 'cid-cmd'
+                      ], check=True, capture_output=True, text=True)
+                      
+                      sys.path.insert(0, '/tmp/packages')
+                      
+                      print(f"Deleting dashboard: {dashboard_id}")
+                      result = subprocess.run([
+                          sys.executable, '-m', 'cid.cli',
+                          'delete',
+                          '--dashboard-id', dashboard_id,
+                          '--yes'
+                      ], check=True, capture_output=True, text=True, env={**os.environ, 'PYTHONPATH': '/tmp/packages'})
+                      
+                      print(f"Deletion output: {result.stdout}")
+                      send_response(event, context, 'SUCCESS', {})
+                  
+                  else:  # Update
+                      print("Update not supported, treating as success")
+                      send_response(event, context, 'SUCCESS', {})
+              
+              except subprocess.CalledProcessError as e:
+                  error_msg = f"Command failed: {e.stderr}"
+                  print(error_msg)
+                  send_response(event, context, 'FAILED', {'Error': error_msg})
+              
+              except Exception as e:
+                  error_msg = f"Unexpected error: {str(e)}"
+                  print(error_msg)
+                  send_response(event, context, 'FAILED', {'Error': error_msg})
+
+  # RDS Data Collection Stack (Nested)
+  RDSDataCollectionStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub '${GitHubRepoURL}/data-collection/module-rds-health.yaml'
+      Parameters:
+        S3DataBucketName: !Ref S3DataBucketName
+        DataCollectionDatabaseName: !Ref DataCollectionDatabaseName
+        RegionsInScope: !Ref RegionsInScope
+        DBClusterinfo: !Ref DBClusterinfo
+        SNSEmailSubscription: !Ref SNSEmailSubscription
+        CIDCrawlerExecutionStateMachineArn: !Ref CIDCrawlerExecutionStateMachineArn
+        AccountCollectorLambdaArn: !Ref AccountCollectorLambdaArn
+        InventoryLambdaArn: !Ref InventoryLambdaArn
+        InventoryLambdaRoleArn: !Ref InventoryLambdaRoleArn
+        GlueCrawlerRoleArn: !Ref GlueCrawlerRoleArn
+        SchedulerExecutionRoleArn: !Ref SchedulerExecutionRoleArn
+        StepFunctionExecutionRoleArn: !Ref StepFunctionExecutionRoleArn
+        Schedule: 'rate(1 day)'
+      TimeoutInMinutes: 30
+
+  # Custom resource to trigger dashboard deployment
+  DashboardDeployment:
+    Type: Custom::RDSHealthDashboard
+    DependsOn: 
+      - RDSDataCollectionStack
+    Properties:
+      ServiceToken: !GetAtt CIDDeploymentFunction.Arn
+      DashboardId: !Ref DashboardId
+
+Outputs:
+  DashboardURL:
+    Description: 'QuickSight Dashboard URL'
+    Value: !Sub 'https://${AWS::Region}.quicksight.aws.amazon.com/sn/dashboards/${DashboardId}'
+  
+  DataCollectionStackId:
+    Description: 'RDS Data Collection Stack ID'
+    Value: !Ref RDSDataCollectionStack
+  
+  DeploymentStatus:
+    Description: 'Deployment completed successfully'
+    Value: 'Dashboard and data collection deployed'
