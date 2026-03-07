@@ -15517,7 +15517,76 @@ datasets:
           Alias: rds_analysis_dist_view
           Source:
             PhysicalTableId: rds-analysis-table
-          DataTransforms: []
+          DataTransforms:
+            - ProjectOperation:
+                ProjectedColumns:
+                  - "dbinstanceidentifier"
+                  - "dbinstanceclass"
+                  - "engine"
+                  - "dbinstancestatus"
+                  - "masterusername"
+                  - "endpoint"
+                  - "allocatedstorage"
+                  - "instancecreatetime"
+                  - "preferredbackupwindow"
+                  - "backupretentionperiod"
+                  - "dbsecuritygroups"
+                  - "vpcsecuritygroups"
+                  - "dbparametergroups"
+                  - "availabilityzone"
+                  - "dbsubnetgroup"
+                  - "preferredmaintenancewindow"
+                  - "latestrestorabletime"
+                  - "multiaz"
+                  - "engineversion"
+                  - "autominorversionupgrade"
+                  - "readreplicadbinstanceidentifiers"
+                  - "licensemodel"
+                  - "optiongroupmemberships"
+                  - "publiclyaccessible"
+                  - "storagetype"
+                  - "dbinstanceport"
+                  - "storageencrypted"
+                  - "dbiresourceid"
+                  - "cacertificateidentifier"
+                  - "copytagstosnapshot"
+                  - "monitoringinterval"
+                  - "dbinstancearn"
+                  - "iamdatabaseauthenticationenabled"
+                  - "performanceinsightsenabled"
+                  - "performanceinsightskmskeyid"
+                  - "performanceinsightsretentionperiod"
+                  - "deletionprotection"
+                  - "maxallocatedstorage"
+                  - "activitystreamstatus"
+                  - "backuptarget"
+                  - "networktype"
+                  - "storagethroughput"
+                  - "certificatedetails"
+                  - "dedicatedlogvolume"
+                  - "accountid"
+                  - "accountname"
+                  - "collection_date"
+                  - "region"
+                  - "current_major_version"
+                  - "latest_major_version"
+                  - "latest_major_version_N"
+                  - "latest_major_version_N"
+                  - "current_minor_version"
+                  - "latest_minor_version"
+                  - "latest_minor_version_N"
+                  - "latest_minor_version_N"
+                  - "dbname"
+                  - "kmskeyid"
+                  - "enginelifecyclesupport"
+                  - "dbclusteridentifier"
+                  - "engine_version_status"
+                  - "readreplicasourcedbinstanceidentifier"
+                  - "taglist"
+                  - "payer_id"
+                  - "year"
+                  - "month"
+                  - "day"
       ImportMode: SPICE
     dependsOn:
       views:
@@ -15548,7 +15617,12 @@ datasets:
           Alias: rds_analysis_tags_view
           Source:
             PhysicalTableId: rds-tags-table
-          DataTransforms: []
+          DataTransforms:
+            - ProjectOperation:
+                ProjectedColumns:
+                  - "dbinstanceidentifier"
+                  - "dbinstancearn"
+                  - "tag_info"
       ImportMode: SPICE
     dependsOn:
       views:
@@ -15643,7 +15717,44 @@ datasets:
           Alias: rds_analysis_endofsupport_view
           Source:
             PhysicalTableId: rds-endofsupport-table
-          DataTransforms: []
+          DataTransforms:
+            - ProjectOperation:
+                ProjectedColumns:
+                  - "accountid"
+                  - "dbinstanceidentifier"
+                  - "dbclusteridentifier"
+                  - "engine"
+                  - "engineversion"
+                  - "dbname"
+                  - "region"
+                  - "dbinstancestatus"
+                  - "endpoint"
+                  - "autominorversionupgrade"
+                  - "preferredbackupwindow"
+                  - "preferredmaintenancewindow"
+                  - "latestrestorabletime"
+                  - "backupretentionperiod"
+                  - "enginelifecyclesupport"
+                  - "current_major_version"
+                  - "latest_major_version"
+                  - "latest_major_version_N"
+                  - "latest_major_version_N"
+                  - "current_minor_version"
+                  - "latest_minor_version"
+                  - "latest_minor_version_N"
+                  - "latest_minor_version_N"
+                  - "engine_version_status"
+                  - "collection_date"
+                  - "year"
+                  - "month"
+                  - "day"
+                  - "rdseos_engine"
+                  - "major_version"
+                  - "rdseos_collection_date"
+                  - "standard_support_start"
+                  - "standard_support_end"
+                  - "extended_support_start"
+                  - "extended_support_end"
       ImportMode: SPICE
     dependsOn:
       views:
@@ -15806,7 +15917,78 @@ datasets:
           Alias: rds_analysis_daily_backup_view
           Source:
             PhysicalTableId: rds-dailybackup-table
-          DataTransforms: []
+          DataTransforms:
+            - ProjectOperation:
+                ProjectedColumns:
+                  - "dbinstanceidentifier"
+                  - "dbinstanceclass"
+                  - "engine"
+                  - "masterusername"
+                  - "endpoint"
+                  - "allocatedstorage"
+                  - "instancecreatetime"
+                  - "preferredbackupwindow"
+                  - "backupretentionperiod"
+                  - "dbparametergroups"
+                  - "availabilityzone"
+                  - "preferredmaintenancewindow"
+                  - "latestrestorabletime"
+                  - "multiaz"
+                  - "engineversion"
+                  - "autominorversionupgrade"
+                  - "readreplicadbinstanceidentifiers"
+                  - "readreplicasourcedbinstanceidentifier"
+                  - "licensemodel"
+                  - "optiongroupmemberships"
+                  - "publiclyaccessible"
+                  - "storagetype"
+                  - "dbinstanceport"
+                  - "storageencrypted"
+                  - "dbiresourceid"
+                  - "cacertificateidentifier"
+                  - "copytagstosnapshot"
+                  - "dbinstancearn"
+                  - "iamdatabaseauthenticationenabled"
+                  - "deletionprotection"
+                  - "maxallocatedstorage"
+                  - "taglist"
+                  - "activitystreamstatus"
+                  - "backuptarget"
+                  - "networktype"
+                  - "storagethroughput"
+                  - "certificatedetails"
+                  - "dedicatedlogvolume"
+                  - "accountid"
+                  - "accountname"
+                  - "region"
+                  - "current_major_version"
+                  - "latest_major_version"
+                  - "latest_major_version_N"
+                  - "latest_major_version_N"
+                  - "current_minor_version"
+                  - "latest_minor_version"
+                  - "latest_minor_version_N"
+                  - "latest_minor_version_N"
+                  - "dbname"
+                  - "kmskeyid"
+                  - "enginelifecyclesupport"
+                  - "dbclusteridentifier"
+                  - "engine_version_status"
+                  - "dbsnapshotidentifier"
+                  - "snapshotcreatetime"
+                  - "status"
+                  - "vpcid"
+                  - "snapshottype"
+                  - "encrypted"
+                  - "dbsnapshotarn"
+                  - "originalsnapshotcreatetime"
+                  - "snapshottarget"
+                  - "multitenant"
+                  - "collection_date"
+                  - "payer_id"
+                  - "year"
+                  - "month"
+                  - "day"
       ImportMode: SPICE
     dependsOn:
       views:
@@ -15898,7 +16080,43 @@ datasets:
         rds-cost-summary-logical:
           Source:
             PhysicalTableId: rds-cost-summary-table
-          DataTransforms: []
+          DataTransforms:
+            - ProjectOperation:
+                ProjectedColumns:
+                  - "account_id"
+                  - "account_name"
+                  - "payer_account_id"
+                  - "billing_period"
+                  - "usage_date"
+                  - "resource_id"
+                  - "product_code"
+                  - "service"
+                  - "product_name"
+                  - "product_family"
+                  - "region"
+                  - "availability_zone"
+                  - "instance_type_family"
+                  - "instance_type"
+                  - "processor"
+                  - "processor_features"
+                  - "current_generation"
+                  - "platform"
+                  - "database_engine"
+                  - "usage_type"
+                  - "operation"
+                  - "charge_type"
+                  - "charge_category"
+                  - "purchase_option"
+                  - "pricing_unit"
+                  - "usage_quantity"
+                  - "unblended_cost"
+                  - "amortized_cost"
+                  - "public_cost"
+                  - "ri_sp_arn"
+                  - "ri_sp_upfront_fees"
+                  - "ri_sp_trueup"
+                  - "year"
+                  - "month"
           Alias: rds_cost_summary
       ImportMode: SPICE          
     dependsOn:
@@ -15983,7 +16201,38 @@ datasets:
           Alias: rds_analysis_maintenance_view
           Source:
             PhysicalTableId: rds-maintenance-table
-          DataTransforms: []
+          DataTransforms:
+            - ProjectOperation:
+                ProjectedColumns:
+                  - "dbinstanceidentifier"
+                  - "engine"
+                  - "dbinstancestatus"
+                  - "multiaz"
+                  - "engineversion"
+                  - "autominorversionupgrade"
+                  - "accountid"
+                  - "accountname"
+                  - "collection_date"
+                  - "region"
+                  - "current_major_version"
+                  - "latest_major_version"
+                  - "current_minor_version"
+                  - "latest_minor_version"
+                  - "dbname"
+                  - "enginelifecyclesupport"
+                  - "dbclusteridentifier"
+                  - "engine_version_status"
+                  - "taglist"
+                  - "action"
+                  - "description"
+                  - "currentapplydate"
+                  - "autoappliedafterdate"
+                  - "forcedapplydate"
+                  - "optinstatus"
+                  - "payer_id"
+                  - "year"
+                  - "month"
+                  - "day"
       ImportMode: SPICE
     dependsOn:
       views:
