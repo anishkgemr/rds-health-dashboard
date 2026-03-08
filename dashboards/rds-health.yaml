@@ -4250,20 +4250,6 @@ dashboards:
                 "Content": "<text-box>\n  <br/>\n  <inline color=\"#f0f6f6\" font-size=\"30px\">\n    <b>RDS DB Backup, Encryption, Reslience and Security Insights</b>\n  </inline>\n</text-box>"
               }
             ],
-            "Images": [
-              {
-                "SheetImageId": "492fa088-280c-41a7-983e-a8a954b4be49",
-                "Source": {
-                  "SheetImageStaticFileSource": {
-                    "StaticFileId": "7e9e134bb5aa48409fe435a65a8f3299"
-                  }
-                },
-                "Tooltip": {
-                  "Visibility": "HIDDEN"
-                },
-                "Actions": []
-              }
-            ],
             "Layouts": [
               {
                 "Configuration": {
@@ -4274,14 +4260,6 @@ dashboards:
                         "ElementType": "TEXT_BOX",
                         "ColumnIndex": 0,
                         "ColumnSpan": 35,
-                        "RowIndex": 0,
-                        "RowSpan": 1
-                      },
-                      {
-                        "ElementId": "492fa088-280c-41a7-983e-a8a954b4be49",
-                        "ElementType": "IMAGE",
-                        "ColumnIndex": 35,
-                        "ColumnSpan": 1,
                         "RowIndex": 0,
                         "RowSpan": 1
                       },
@@ -7741,20 +7719,6 @@ dashboards:
                 "Content": "<text-box>\n  <br/>\n  <inline font-size=\"18px\">\n    <b>Select the Date for</b>\n  </inline>\n  <inline font-size=\"18px\">\u00a0below RDS Backup KPI,</inline>\n  <br/>\n  <ul>\n    <li class=\"ql-indent-0\">\n      <inline font-size=\"18px\">Total RDS Databases</inline>\n    </li>\n    <li class=\"ql-indent-0\">\n      <inline font-size=\"18px\">Average Backup Percentage</inline>\n    </li>\n    <li class=\"ql-indent-0\">\n      <inline font-size=\"18px\">RDS DBs without backup for 24 hours</inline>\n    </li>\n    <li class=\"ql-indent-0\">\n      <inline font-size=\"18px\">RDS DBs with backup retention set to 0</inline>\n    </li>\n  </ul>\n</text-box>"
               }
             ],
-            "Images": [
-              {
-                "SheetImageId": "41933af9-56a9-4ca7-8f39-e5fc1db01ec6",
-                "Source": {
-                  "SheetImageStaticFileSource": {
-                    "StaticFileId": "7e9e134bb5aa48409fe435a65a8f3299"
-                  }
-                },
-                "Tooltip": {
-                  "Visibility": "HIDDEN"
-                },
-                "Actions": []
-              }
-            ],
             "Layouts": [
               {
                 "Configuration": {
@@ -7765,14 +7729,6 @@ dashboards:
                         "ElementType": "TEXT_BOX",
                         "ColumnIndex": 0,
                         "ColumnSpan": 35,
-                        "RowIndex": 0,
-                        "RowSpan": 1
-                      },
-                      {
-                        "ElementId": "41933af9-56a9-4ca7-8f39-e5fc1db01ec6",
-                        "ElementType": "IMAGE",
-                        "ColumnIndex": 35,
-                        "ColumnSpan": 1,
                         "RowIndex": 0,
                         "RowSpan": 1
                       },
@@ -7862,8 +7818,7 @@ dashboards:
                         "ColumnIndex": 9,
                         "ColumnSpan": 9,
                         "RowIndex": 60,
-                        "RowSpan": 4,
-                        "Padding": "8px 8px 8px 8px"
+                        "RowSpan": 4
                       },
                       {
                         "ElementId": "8b99f1e8-97ac-4ba7-bdb9-825ca7065664",
@@ -11820,20 +11775,6 @@ dashboards:
                 "Content": "<text-box>\n  <br/>\n  <inline color=\"#f0f6f6\" font-size=\"25px\">\n    <b>RDS Cost and Usage Summary</b>\n  </inline>\n</text-box>"
               }
             ],
-            "Images": [
-              {
-                "SheetImageId": "2c5f84fe-0ef4-413c-9aef-72f305ff0ee0",
-                "Source": {
-                  "SheetImageStaticFileSource": {
-                    "StaticFileId": "7e9e134bb5aa48409fe435a65a8f3299"
-                  }
-                },
-                "Tooltip": {
-                  "Visibility": "HIDDEN"
-                },
-                "Actions": []
-              }
-            ],
             "Layouts": [
               {
                 "Configuration": {
@@ -11844,14 +11785,6 @@ dashboards:
                         "ElementType": "TEXT_BOX",
                         "ColumnIndex": 0,
                         "ColumnSpan": 35,
-                        "RowIndex": 0,
-                        "RowSpan": 1
-                      },
-                      {
-                        "ElementId": "2c5f84fe-0ef4-413c-9aef-72f305ff0ee0",
-                        "ElementType": "IMAGE",
-                        "ColumnIndex": 35,
-                        "ColumnSpan": 1,
                         "RowIndex": 0,
                         "RowSpan": 1
                       },
@@ -11917,10 +11850,7 @@ dashboards:
                         "ColumnIndex": 0,
                         "ColumnSpan": 7,
                         "RowIndex": 19,
-                        "RowSpan": 6,
-                        "LoadingAnimation": {
-                          "Visibility": "VISIBLE"
-                        }
+                        "RowSpan": 6
                       },
                       {
                         "ElementId": "cfe91115-05c5-4f09-a1bc-652566babd7c",
@@ -15321,22 +15251,8 @@ dashboards:
           }
         },
         "Options": {
-          "WeekStart": "SUNDAY",
-          "QBusinessInsightsStatus": "ENABLED",
-          "ExcludedDataSetArns": []
+          "WeekStart": "SUNDAY"
         },
-        "StaticFiles": [
-          {
-            "ImageStaticFile": {
-              "StaticFileId": "7e9e134bb5aa48409fe435a65a8f3299",
-              "Source": {
-                "UrlOptions": {
-                  "Url": "https://aws-sn-staticassetmanager-staging-prod-us-east-1.s3.amazonaws.com/892417232800/uploads/f9e24d0c927a4241b832d3389e230057/f9e24d0c927a4241b832d3389e230057.png"
-                }
-              }
-            }
-          }
-        ],
         "DataSetIdentifierDeclarations": [
           {
             "Identifier": "rds_analysis_dataset7",
