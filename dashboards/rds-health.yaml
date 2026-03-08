@@ -16382,7 +16382,7 @@ views:
                                     "${data_collection_database_name}".rds_analysis_data
                                   , "${data_collection_database_name}".rds_endofsupport_data
                                   WHERE ((rds_analysis_data.engine = rds_endofsupport_data.engine) AND (rds_analysis_data.current_major_version = rds_endofsupport_data.major_version) 
-                                  AND (DATE(CAST(rds_analysis_data.collection_date AS timestamp)) = DATE(CAST(rds_endofsupport_dat
+                                  AND (DATE(CAST(rds_analysis_data.collection_date AS timestamp)) = DATE(CAST(rds_endofsupport_data.collection_date AS timestamp))))
     parameters:
       data_collection_database_name:
         default: optimization_data
