@@ -16593,6 +16593,7 @@ views:
       cur_database_name:
         default: cid_cur
         description: Database containing CID views (summary_view, resource_view, account_map)
+        global: True
       athena_database_name:
         default: optimization_data
         global: True
